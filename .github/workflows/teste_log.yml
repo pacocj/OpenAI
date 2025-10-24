@@ -17,7 +17,7 @@ jobs:
         run: |
           echo "Log gerado automaticamente em $(date '+%Y-%m-%d %H:%M:%S')" > log_automacao.txt
           echo "Executado por GitHub Actions." >> log_automacao.txt
-          echo "Ambiente: Linux Ubuntu" >> log_automacao.txt
+          echo "Autor: Carlos Oliveira" >> log_automacao.txt
 
       - name: Guardar log como artefacto
         uses: actions/upload-artifact@v4
