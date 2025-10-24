@@ -1,0 +1,34 @@
+name: Gerar relatório de leads
+
+on:
+  push:
+    paths:
+      - 'leads*.csv'
+      - 'lead_report.py'
+
+jobs:
+  gerar-relatorio:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Fazer checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Instalar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Instalar dependências
+        run: |
+          pip install -r requirements.txt
+
+      - name: Gerar relatório
+        run: |
+          python lead_report.py
+
+      - name: Guardar relatório gerado
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-leads
+          path: relatorio_leads.txt
