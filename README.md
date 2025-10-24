@@ -1,6 +1,10 @@
 # Automação Comercial Assistida por IA
 
+
 Este repositório mostra um exemplo prático de como usar automação + análise de dados para dar poder a equipas comerciais, usando Python e IA.
+
+Este repositório mostra um exemplo real de como usar automação + análise de dados para dar poder a equipas comerciais, usando Python e IA.
+
 
 ## O que este projeto faz
 
@@ -9,11 +13,18 @@ Este repositório mostra um exemplo prático de como usar automação + análise
 3. Gera um mini-relatório com prioridades comerciais (quem atacar primeiro).
 4. Guarda esse relatório pronto para enviar à direção comercial.
 
-Isto é útil para equipas de vendas B2B (leasing, renting de camiões, financiamento de máquinas, etc.) e pode ser adaptado a qualquer pipeline comercial.
+1. Isto é útil para equipas de vendas B2B (leasing, renting de camiões, financiamento de máquinas, etc.) e pode ser adaptado a qualquer pipeline comercial.
+2. Conta quantos leads existem por estado (por ex.: Quente, Morno, Frio).
+3. Gera um mini-relatório de apoio à decisão comercial (quantos leads quentes tenho hoje? onde investir primeiro?).
+4. Guarda esse relatório pronto para enviar ao chefe / equipa.
+
+Isto é útil para equipas de vendas B2B (leasing, renting de camiões, equipamentos industriais, financiamento de máquinas, etc.), mas pode ser adaptado a qualquer pipeline comercial.
+
 
 ## Ficheiros principais
 
 - `lead_report.py`  
+
   Gera automaticamente um relatório de leads e cria o ficheiro `relatorio_leads.txt`.
 
 - `requirements.txt`  
@@ -47,3 +58,12 @@ Isto é útil para equipas de vendas B2B (leasing, renting de camiões, financia
 ## Próximo passo
 
 Automatizar o envio diário deste relatório e ligar a dashboards visuais.
+
+  Script que gera automaticamente um relatório de leads.
+
+## Como usar
+
+1. Instalar dependências (Python 3 + pandas + openpyxl):
+   ```bash
+   pip install pandas openpyxl
+
