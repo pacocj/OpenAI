@@ -1,0 +1,34 @@
+name: Gerar relatório de pipeline comercial
+
+on:
+  push:
+    paths:
+      - 'negocios.csv'
+      - 'relatorio_pipeline.py'
+
+jobs:
+  gerar-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Instalar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Instalar dependências
+        run: |
+          pip install pandas
+
+      - name: Gerar relatório de pipeline
+        run: |
+          python relatorio_pipeline.py
+
+      - name: Guardar relatório gerado
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-pipeline
+          path: relatorio_pipeline.txt
