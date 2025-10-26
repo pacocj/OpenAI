@@ -2,6 +2,7 @@ import pandas as pd
 from datetime import datetime
 import glob
 import os
+import matplotlib.pyplot as plt
 
 
 def obter_ultimo_ficheiro_movimentos(prefixo="movimentos"):
@@ -14,9 +15,38 @@ def obter_ultimo_ficheiro_movimentos(prefixo="movimentos"):
     if not candidatos:
         raise FileNotFoundError("Nenhum ficheiro de movimentos encontrado (movimentos*.csv).")
 
-    # ordenar por data de modificação (mais recente primeiro)
     candidatos.sort(key=os.path.getmtime, reverse=True)
     return candidatos[0]
+
+
+def gerar_grafico_despesas_por_categoria(df, nome_png):
+    """
+    Gera um gráfico de barras com o total de despesas por categoria
+    e guarda-o como imagem PNG.
+    """
+    despesas_cat = (
+        df[df["Tipo"].str.capitalize() == "Despesa"]
+        .groupby(df["Categoria"].str.capitalize())["Valor"]
+        .sum()
+        .sort_values(ascending=False)
+    )
+
+    if despesas_cat.empty:
+        # Se por acaso não houver despesas, ainda assim criamos um gráfico vazio
+        plt.figure(figsize=(6,4))
+        plt.text(0.5, 0.5, "Sem despesas registadas", ha="center", va="center")
+        plt.title("Despesas por Categoria (€)")
+        plt.axis("off")
+    else:
+        plt.figure(figsize=(6,4))
+        plt.bar(despesas_cat.index, despesas_cat.values)
+        plt.title("Despesas por Categoria (€)")
+        plt.ylabel("€")
+        plt.xticks(rotation=30, ha="right")
+        plt.tight_layout()
+
+    plt.savefig(nome_png)
+    plt.close()
 
 
 def gerar_relatorio_financeiro():
@@ -58,6 +88,7 @@ def gerar_relatorio_financeiro():
     timestamp_humano = agora.strftime("%Y-%m-%d %H:%M:%S")
     timestamp_para_nome = agora.strftime("%Y-%m-%d_%H-%M-%S")
 
+    # ----- 1) gerar relatório texto -----
     linhas = []
     linhas.append("RELATÓRIO FINANCEIRO AUTOMÁTICO")
     linhas.append(f"Data: {timestamp_humano}")
@@ -77,16 +108,19 @@ def gerar_relatorio_financeiro():
     linhas.append("Observação:")
     linhas.append(f"- {observacao}")
 
-    # nome dinâmico para o relatório
     nome_relatorio = f"relatorio_financeiro_{timestamp_para_nome}.txt"
-
     with open(nome_relatorio, "w", encoding="utf-8") as f:
         f.write("\n".join(linhas))
 
-    print("✅ Relatório gerado:", nome_relatorio)
+    # ----- 2) gerar gráfico PNG -----
+    nome_grafico = f"grafico_despesas_{timestamp_para_nome}.png"
+    gerar_grafico_despesas_por_categoria(df, nome_grafico)
 
-    # devolve o nome criado para que o workflow saiba o que subir
-    return nome_relatorio
+    print("Relatório gerado:", nome_relatorio)
+    print("Gráfico gerado:", nome_grafico)
+
+    # devolvemos os nomes para o workflow apanhar e fazer upload
+    return nome_relatorio, nome_grafico
 
 
 if __name__ == "__main__":
