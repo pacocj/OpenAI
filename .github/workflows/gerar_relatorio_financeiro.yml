@@ -32,7 +32,7 @@ jobs:
           echo "RELATORIO=$RELATORIO" >> $GITHUB_ENV
 
       - name: Guardar relatório como artefacto
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.RELATORIO }}
-          path: ${{ env.RELATORIO }}
+  uses: actions/upload-artifact@v4
+  with:
+    name: relatorios_financeiros
+    path: relatorio_financeiro*.txt
