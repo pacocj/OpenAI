@@ -24,11 +24,15 @@ jobs:
           pip install pandas
 
       - name: Executar script financeiro
+        id: gerar
         run: |
-          python relatorio_financeiro.py
+          python relatorio_financeiro.py > output.txt
+          # apanhar o nome do ficheiro criado, última linha do print
+          RELATORIO=$(grep "Relatório gerado:" output.txt | awk '{print $3}')
+          echo "RELATORIO=$RELATORIO" >> $GITHUB_ENV
 
       - name: Guardar relatório como artefacto
         uses: actions/upload-artifact@v4
         with:
-          name: relatorio-financeiro
-          path: relatorio_financeiro.txt
+          name: ${{ env.RELATORIO }}
+          path: ${{ env.RELATORIO }}
