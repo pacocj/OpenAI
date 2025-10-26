@@ -23,12 +23,12 @@ jobs:
         run: |
           pip install pandas
 
-      - name: Executar script financeiro
+            - name: Executar script financeiro
         id: gerar
         run: |
           python relatorio_financeiro.py > output.txt
-          # apanhar o nome do ficheiro criado (linha que contém "Relatório gerado:")
-          RELATORIO=$(grep "Relatório gerado:" output.txt | awk '{print $3}')
+          # apanhar o nome do ficheiro criado (linha que contém ".txt")
+          RELATORIO=$(grep -oE 'relatorio_financeiro_[0-9_-]+\.txt' output.txt | tail -n 1)
           echo "RELATORIO=$RELATORIO" >> $GITHUB_ENV
           echo "Ficheiro gerado: $RELATORIO"
 
