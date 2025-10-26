@@ -1,0 +1,34 @@
+name: Gerar relatório financeiro
+
+on:
+  push:
+    paths:
+      - 'movimentos.csv'
+      - 'relatorio_financeiro.py'
+
+jobs:
+  gerar-financeiro:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Instalar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Instalar dependências
+        run: |
+          pip install pandas
+
+      - name: Executar script financeiro
+        run: |
+          python relatorio_financeiro.py
+
+      - name: Guardar relatório como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-financeiro
+          path: relatorio_financeiro.txt
