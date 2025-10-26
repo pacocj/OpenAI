@@ -21,27 +21,30 @@ jobs:
 
       - name: Instalar dependências
         run: |
-          pip install pandas
+          pip install pandas matplotlib
 
-      - name: Executar script financeiro e capturar nome do relatório
+      - name: Executar script financeiro e capturar nomes dos ficheiros
         run: |
-          # Corre o script e guarda toda a saída em output.txt
           python relatorio_financeiro.py > output.txt
 
-          echo "=== Conteúdo da saída do script ==="
+          echo "=== Saída do script ==="
           cat output.txt
-          echo "==================================="
+          echo "======================="
 
-          # Extrai o nome do ficheiro gerado pelo script
           RELATORIO=$(grep -oE 'relatorio_financeiro_[0-9_-]+\.txt' output.txt | tail -n 1)
+          GRAFICO=$(grep -oE 'grafico_despesas_[0-9_-]+\.png' output.txt | tail -n 1)
 
-          echo "RELATORIO encontrado: $RELATORIO"
-
-          # Exporta o nome do relatório para os próximos steps (env global do job)
           echo "RELATORIO=$RELATORIO" >> $GITHUB_ENV
+          echo "GRAFICO=$GRAFICO" >> $GITHUB_ENV
 
-      - name: Guardar relatório como artefacto
+      - name: Guardar relatório (.txt) como artefacto
         uses: actions/upload-artifact@v4
         with:
-          name: relatorios_financeiros
+          name: relatorio_financeiro
           path: ${{ env.RELATORIO }}
+
+      - name: Guardar gráfico (.png) como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: grafico_financeiro
+          path: ${{ env.GRAFICO }}
