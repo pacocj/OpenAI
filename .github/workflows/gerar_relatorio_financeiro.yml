@@ -27,12 +27,13 @@ jobs:
         id: gerar
         run: |
           python relatorio_financeiro.py > output.txt
-          # apanhar o nome do ficheiro criado, última linha do print
+          # apanhar o nome do ficheiro criado (linha que contém "Relatório gerado:")
           RELATORIO=$(grep "Relatório gerado:" output.txt | awk '{print $3}')
           echo "RELATORIO=$RELATORIO" >> $GITHUB_ENV
+          echo "Ficheiro gerado: $RELATORIO"
 
       - name: Guardar relatório como artefacto
-  uses: actions/upload-artifact@v4
-  with:
-    name: relatorios_financeiros
-    path: relatorio_financeiro*.txt
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorios_financeiros
+          path: ${{ env.RELATORIO }}
