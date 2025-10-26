@@ -1,20 +1,43 @@
 import pandas as pd
 from datetime import datetime
+import glob
+import os
 
 
-def gerar_relatorio_financeiro(caminho_csv="movimentos.csv", saida="relatorio_financeiro.txt"):
+def obter_ultimo_ficheiro_movimentos(prefixo="movimentos"):
+    """
+    Procura ficheiros que começam por 'movimentos' e terminam em .csv
+    Ex.: movimentos.csv, movimentos_2025-10-27.csv, etc.
+    Escolhe o MAIS RECENTE (pelo timestamp de modificação no repo checkout).
+    """
+    candidatos = glob.glob(f"{prefixo}*.csv")
+    if not candidatos:
+        raise FileNotFoundError("Nenhum ficheiro de movimentos encontrado (movimentos*.csv).")
+
+    # ordenar por data de modificação (mais recente primeiro)
+    candidatos.sort(key=os.path.getmtime, reverse=True)
+    return candidatos[0]
+
+
+def gerar_relatorio_financeiro():
+    # 1. descobrir qual csv usar
+    caminho_csv = obter_ultimo_ficheiro_movimentos()
+
     df = pd.read_csv(caminho_csv)
 
-    # Garantir que os dados estão limpos
+    # limpeza básica
     df["Tipo"] = df["Tipo"].str.strip().str.capitalize()
     df["Categoria"] = df["Categoria"].str.strip().str.capitalize()
 
-    # Totais básicos
     total_receitas = df[df["Tipo"] == "Receita"]["Valor"].sum()
     total_despesas = df[df["Tipo"] == "Despesa"]["Valor"].sum()
     saldo = total_receitas - total_despesas
 
-    # Top 3 categorias de despesa
+    if total_receitas > 0:
+        perc_despesas = (total_despesas / total_receitas) * 100
+    else:
+        perc_despesas = 0
+
     categorias_despesa = (
         df[df["Tipo"] == "Despesa"]
         .groupby("Categoria")["Valor"]
@@ -22,12 +45,6 @@ def gerar_relatorio_financeiro(caminho_csv="movimentos.csv", saida="relatorio_fi
         .sort_values(ascending=False)
         .head(3)
     )
-
-    # Percentagem de despesas vs receitas
-    if total_receitas > 0:
-        perc_despesas = (total_despesas / total_receitas) * 100
-    else:
-        perc_despesas = 0
 
     # Observação automática
     if saldo > 0:
@@ -37,28 +54,39 @@ def gerar_relatorio_financeiro(caminho_csv="movimentos.csv", saida="relatorio_fi
     else:
         observacao = "Saldo neutro — receitas e despesas equilibradas."
 
-    # Montar relatório
+    agora = datetime.now()
+    timestamp_humano = agora.strftime("%Y-%m-%d %H:%M:%S")
+    timestamp_para_nome = agora.strftime("%Y-%m-%d_%H-%M-%S")
+
     linhas = []
     linhas.append("RELATÓRIO FINANCEIRO AUTOMÁTICO")
-    linhas.append(f"Data: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    linhas.append(f"Data: {timestamp_humano}")
     linhas.append("-" * 60)
-    linhas.append(f"\nTotal de Receitas: €{total_receitas:,.2f}")
+    linhas.append("")
+    linhas.append(f"Ficheiro analisado: {caminho_csv}")
+    linhas.append("")
+    linhas.append(f"Total de Receitas: €{total_receitas:,.2f}")
     linhas.append(f"Total de Despesas: €{total_despesas:,.2f}")
     linhas.append(f"Saldo: €{saldo:,.2f}")
     linhas.append(f"Percentagem de despesas vs receitas: {perc_despesas:.1f}%")
-
-    linhas.append("\nTop 3 Categorias de Despesa:")
+    linhas.append("")
+    linhas.append("Top 3 Categorias de Despesa:")
     for categoria, valor in categorias_despesa.items():
         linhas.append(f"  - {categoria}: €{valor:,.2f}")
-
-    linhas.append("\nObservação:")
+    linhas.append("")
+    linhas.append("Observação:")
     linhas.append(f"- {observacao}")
 
-    # Guardar relatório
-    with open(saida, "w", encoding="utf-8") as f:
+    # nome dinâmico para o relatório
+    nome_relatorio = f"relatorio_financeiro_{timestamp_para_nome}.txt"
+
+    with open(nome_relatorio, "w", encoding="utf-8") as f:
         f.write("\n".join(linhas))
 
-    print("✅ Relatório gerado com sucesso:", saida)
+    print("✅ Relatório gerado:", nome_relatorio)
+
+    # devolve o nome criado para que o workflow saiba o que subir
+    return nome_relatorio
 
 
 if __name__ == "__main__":
