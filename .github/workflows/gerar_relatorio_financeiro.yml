@@ -23,14 +23,22 @@ jobs:
         run: |
           pip install pandas
 
-            - name: Executar script financeiro
-        id: gerar
+      - name: Executar script financeiro e capturar nome do relatório
         run: |
+          # Corre o script e guarda toda a saída em output.txt
           python relatorio_financeiro.py > output.txt
-          # apanhar o nome do ficheiro criado (linha que contém ".txt")
+
+          echo "=== Conteúdo da saída do script ==="
+          cat output.txt
+          echo "==================================="
+
+          # Extrai o nome do ficheiro gerado pelo script
           RELATORIO=$(grep -oE 'relatorio_financeiro_[0-9_-]+\.txt' output.txt | tail -n 1)
+
+          echo "RELATORIO encontrado: $RELATORIO"
+
+          # Exporta o nome do relatório para os próximos steps (env global do job)
           echo "RELATORIO=$RELATORIO" >> $GITHUB_ENV
-          echo "Ficheiro gerado: $RELATORIO"
 
       - name: Guardar relatório como artefacto
         uses: actions/upload-artifact@v4
