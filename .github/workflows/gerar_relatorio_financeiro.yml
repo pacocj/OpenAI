@@ -3,7 +3,7 @@ name: Gerar relatório financeiro
 on:
   push:
     paths:
-      - 'movimentos.csv'
+      - 'movimentos*.csv'
       - 'relatorio_financeiro.py'
 
 jobs:
